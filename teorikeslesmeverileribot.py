@@ -63,26 +63,34 @@ async def mention_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not message.text:
         return
 
-    if "@MagfiAds_Bot" in message.text:
-        msg_id = message.message_id
-        group_username = chat.username
+    # Mesaj bot tarafından mı atılmış? (Mesaj gönderenin username'si @MagfiAds_Bot ise)
+    sender_username = message.from_user.username if message.from_user else None
+    if sender_username != "MagfiAds_Bot":
+        return  # Sadece @MagfiAds_Bot tarafından gönderilen mesajlara cevap ver
 
-        if group_username not in PUBLIC_GROUP_USERNAMES:
-            logging.info(f"Bilinmeyen grup: {group_username}")
-            return
+    # Mesaj grubun adı "Magfi Ads- #sponsorlu" mu?
+    if chat.title != "Magfi Ads- #sponsorlu":
+        return  # Sadece o grup
 
-        group_link = f"https://t.me/{group_username}/{msg_id}"
+    msg_id = message.message_id
+    group_username = chat.username
 
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("Görüntüle", url=group_link)],
-            [InlineKeyboardButton("Görüntüledim", callback_data=f"seen_{chat.id}_{msg_id}")],
-            [InlineKeyboardButton("Bota dön", url="https://t.me/teorikeslesmeverileribot")]
-        ])
+    if group_username not in PUBLIC_GROUP_USERNAMES:
+        logging.info(f"Bilinmeyen grup: {group_username}")
+        return
 
-        await message.reply_text(
-            "Görüntüle, görüntüledim butonuna bas, 1 günlük canlı veri kazan!",
-            reply_markup=keyboard
-        )
+    group_link = f"https://t.me/{group_username}/{msg_id}"
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Görüntüle", url=group_link)],
+        [InlineKeyboardButton("Görüntüledim", callback_data=f"seen_{chat.id}_{msg_id}")],
+        [InlineKeyboardButton("Bota dön", url="https://t.me/teorikeslesmeverileribot")]
+    ])
+
+    await message.reply_text(
+        "Görüntüle, görüntüledim butonuna bas, 1 günlük canlı veri kazan!",
+        reply_markup=keyboard
+    )
 
 # --- Inline buton callback ---
 
